@@ -1,4 +1,10 @@
-# @summary Installs the UniFi Network application from Ubiquiti's APT repository.
+# @summary Installs the UniFi Network application, with MongoDB and Java.
+#
+# By default the `unifi` package is downloaded from Ubiquiti's download
+# server for the version in `package_ensure` (`install_from => 'download'`),
+# because Ubiquiti publishes some releases there before, or instead of, its
+# APT repository. With `install_from => 'repository'` it comes from the APT
+# repository's `repo_release` suite instead.
 #
 # The `unifi` package depends on MongoDB (3.6 up to, not including, 8.1) and
 # a Java runtime (Java 25 for UniFi 10.4, Java 17 or 21 for 9.x). Neither is
@@ -9,8 +15,13 @@
 #
 # The defaults for each OS are in the module's Hiera data.
 #
-# @example Install UniFi with everything it needs
+# @example Install the default version (10.6.106) with everything it needs
 #   include unifi
+#
+# @example Install another version from the download server
+#   class { 'unifi':
+#     package_ensure => '10.4.57-34628-1',
+#   }
 #
 # @example Use a TLS certificate for the web interface
 #   class { 'unifi':
@@ -18,14 +29,28 @@
 #     ssl_private_key => '/etc/ssl/private/unifi.example.com.key',
 #   }
 #
-# @example Stay on a release line
+# @example Follow a release line in Ubiquiti's APT repository
 #   class { 'unifi':
-#     repo_release => 'unifi-9.5',
-#     java_package => 'openjdk-21-jre-headless',
+#     install_from   => 'repository',
+#     repo_release   => 'unifi-10.4',
+#     package_ensure => 'latest',
 #   }
 #
+# @param install_from
+#   `download` installs the .deb for `package_ensure` from Ubiquiti's
+#   download server; `repository` installs from the APT repository.
+# @param package_url
+#   The .deb to download. Defaults to Ubiquiti's URL for the version in
+#   `package_ensure`.
+# @param package_checksums
+#   SHA-256 checksums of known .deb files, keyed by package version. A
+#   download with a known checksum is verified; others are trusted as
+#   downloaded over HTTPS.
+# @param download_dir
+#   Where the downloaded .deb is kept.
 # @param manage_repository
-#   Whether to add Ubiquiti's APT repository.
+#   Whether to add Ubiquiti's APT repository. Defaults to true only when
+#   installing from it.
 # @param repo_location
 #   Ubiquiti's repository URL.
 # @param repo_release
@@ -57,7 +82,9 @@
 # @param package_name
 #   The UniFi package.
 # @param package_ensure
-#   The package's `ensure`, such as `installed`, `latest` or a version.
+#   The package version, such as `10.6.106-36011-1` (the full Debian version,
+#   with the build number). With `install_from => 'repository'` it can also
+#   be `installed` or `latest`.
 # @param manage_service
 #   Whether to manage the UniFi service.
 # @param service_name
@@ -81,33 +108,40 @@
 #   `{ 'unifi.https.port' => { 'value' => '8443' } }`.
 class unifi (
   # Defaults for these are in the module's Hiera data, per OS.
-  Boolean                         $manage_java_repository,
-  String[1]                       $mongodb_repo_location,
-  String[1]                       $mongodb_repo_component,
-  String[1]                       $mongodb_version,
-  Optional[String[1]]             $java_package,
-  Boolean                         $manage_repository         = true,
-  Stdlib::HTTPUrl                 $repo_location             = 'https://dl.ui.com/unifi/debian',
-  String[1]                       $repo_release              = 'stable',
-  String[1]                       $repo_key_name             = 'unifi-repo.gpg',
-  Stdlib::HTTPUrl                 $repo_key_source           = 'https://dl.ui.com/unifi/unifi-repo.gpg',
-  Boolean                         $manage_mongodb_repository = true,
-  Stdlib::HTTPUrl                 $java_repo_location        = 'https://packages.adoptium.net/artifactory/deb',
-  Boolean                         $manage_package            = true,
-  String[1]                       $package_name              = 'unifi',
-  String[1]                       $package_ensure            = 'installed',
-  Boolean                         $manage_service            = true,
-  String[1]                       $service_name              = 'unifi',
-  Stdlib::Ensure::Service         $service_ensure            = 'running',
-  Boolean                         $service_enable            = true,
-  Optional[Stdlib::Absolutepath]  $ssl_certificate           = undef,
-  Optional[Stdlib::Absolutepath]  $ssl_private_key           = undef,
-  String[1]                       $keystore_password         = 'aircontrolenterprise',
-  Stdlib::Absolutepath            $data_path                 = '/var/lib/unifi',
-  Hash[String[1], Hash]           $settings                  = {},
+  Boolean                                $manage_java_repository,
+  String[1]                              $mongodb_repo_location,
+  String[1]                              $mongodb_repo_component,
+  String[1]                              $mongodb_version,
+  Optional[String[1]]                    $java_package,
+  String[1]                              $package_ensure,
+  Hash[String[1], Pattern[/\A\h{64}\z/]] $package_checksums,
+  Enum['download', 'repository']         $install_from              = 'download',
+  Optional[Stdlib::HTTPUrl]              $package_url               = undef,
+  Stdlib::Absolutepath                   $download_dir              = '/var/cache/unifi',
+  Boolean                                $manage_repository         = ($install_from == 'repository'),
+  Stdlib::HTTPUrl                        $repo_location             = 'https://dl.ui.com/unifi/debian',
+  String[1]                              $repo_release              = 'stable',
+  String[1]                              $repo_key_name             = 'unifi-repo.gpg',
+  Stdlib::HTTPUrl                        $repo_key_source           = 'https://dl.ui.com/unifi/unifi-repo.gpg',
+  Boolean                                $manage_mongodb_repository = true,
+  Stdlib::HTTPUrl                        $java_repo_location        = 'https://packages.adoptium.net/artifactory/deb',
+  Boolean                                $manage_package            = true,
+  String[1]                              $package_name              = 'unifi',
+  Boolean                                $manage_service            = true,
+  String[1]                              $service_name              = 'unifi',
+  Stdlib::Ensure::Service                $service_ensure            = 'running',
+  Boolean                                $service_enable            = true,
+  Optional[Stdlib::Absolutepath]         $ssl_certificate           = undef,
+  Optional[Stdlib::Absolutepath]         $ssl_private_key           = undef,
+  String[1]                              $keystore_password         = 'aircontrolenterprise',
+  Stdlib::Absolutepath                   $data_path                 = '/var/lib/unifi',
+  Hash[String[1], Hash]                  $settings                  = {},
 ) {
   unless $facts['os']['family'] == 'Debian' {
     fail("unifi: Ubiquiti only publishes UniFi for Debian and Ubuntu, not ${facts['os']['name']}.")
+  }
+  if $install_from == 'download' and $package_ensure !~ /\A\d+\.\d+\.\d+-/ {
+    fail("unifi: to download UniFi, set package_ensure to a full package version such as '10.6.106-36011-1', not '${package_ensure}'.")
   }
 
   contain unifi::repo
