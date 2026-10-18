@@ -1,0 +1,10 @@
+---
+# Defaults for every OS; data/os/ overrides them.
+unifi::manage_java_repository: false
+unifi::java_package: ~
+unifi::mongodb_version: '8.0'
+# The version installed by default, and the checksums of the .deb files the
+# module knows (sha256 of https://dl.ui.com/unifi/<version>/unifi_sysvinit_all.deb).
+unifi::package_ensure: '10.6.106-36011-1'
+unifi::package_checksums:
+  '10.6.106-36011-1': 'e93b70e73b9983c5e4d0a8ccc2d5d19b86db05e78f9a8c1850caf89ac069b240'

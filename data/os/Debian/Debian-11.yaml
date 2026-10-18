@@ -1,0 +1,3 @@
+---
+# MongoDB publishes 8.0 for Debian 12 but not 11; 7.0 is the newest for 11.
+unifi::mongodb_version: '7.0'

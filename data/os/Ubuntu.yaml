@@ -1,0 +1,6 @@
+---
+unifi::mongodb_repo_location: 'https://repo.mongodb.org/apt/ubuntu'
+unifi::mongodb_repo_component: 'multiverse'
+# Ubuntu 22.04 and 24.04 ship OpenJDK 25 in their updates (universe).
+unifi::manage_java_repository: false
+unifi::java_package: 'openjdk-25-jre-headless'
