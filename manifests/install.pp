@@ -1,31 +1,24 @@
-# == Class: unifi::install
-
+# @summary Installs Java, then UniFi (which pulls in MongoDB).
+#
+# @api private
 class unifi::install {
-  if $::unifi::manage_repository {
-    apt::key { 'unifi':
-      id     => $::unifi::repo_key_id,
-      server => $::unifi::repo_key_server,
-    }
+  assert_private()
 
-    apt::source { 'unifi':
-      comment  => 'Ubiquiti UniFi Controller APT Repository',
-      location => $::unifi::repo_location,
-      release  => $::unifi::repo_release,
-      require  => Apt::Key['unifi'],
-      repos    => 'ubiquiti',
-      pin      => '200',
-      include  => {
-        src => false,
-        deb => true,
-      },
+  # Installed first, so that APT doesn't satisfy the `unifi` package's Java
+  # dependency with the first alternative it lists, which can be a full JDK.
+  if $unifi::java_package {
+    package { $unifi::java_package:
+      ensure => installed,
     }
-
-    Apt::Source['unifi'] -> Package[$::unifi::package_name]
   }
 
-  if $::unifi::manage_package {
-    package { $::unifi::package_name:
-      ensure => $::unifi::package_ensure,
+  if $unifi::manage_package {
+    package { $unifi::package_name:
+      ensure  => $unifi::package_ensure,
+      require => $unifi::java_package ? {
+        undef   => undef,
+        default => Package[$unifi::java_package],
+      },
     }
   }
 }

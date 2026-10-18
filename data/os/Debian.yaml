@@ -1,0 +1,10 @@
+---
+# Debian (os.family Debian; Ubuntu overrides this in os/Ubuntu.yaml).
+#
+# MongoDB comes from MongoDB's repository: Debian has none of its own.
+unifi::mongodb_repo_location: 'https://repo.mongodb.org/apt/debian'
+unifi::mongodb_repo_component: 'main'
+# UniFi 10.4 needs Java 25, which Debian 11 and 12 don't ship, so it comes
+# from Adoptium's Temurin repository.
+unifi::manage_java_repository: true
+unifi::java_package: 'temurin-25-jre'

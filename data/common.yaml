@@ -1,0 +1,5 @@
+---
+# Defaults for every OS; data/os/ overrides them.
+unifi::manage_java_repository: false
+unifi::java_package: ~
+unifi::mongodb_version: '8.0'
