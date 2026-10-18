@@ -1,40 +1,56 @@
 {
-  "name": "jmkeyes-unifi",
-  "version": "0.0.4",
-  "author": "jmkeyes",
-  "summary": "Module for managing a Ubiquiti UniFi Controller.",
+  "name": "freepenguins-unifi",
+  "version": "1.0.0",
+  "author": "freepenguins",
+  "summary": "Installs the UniFi Network application from Ubiquiti's APT repository, with MongoDB and Java",
   "license": "Apache-2.0",
-  "source": "https://github.com/jmkeyes/puppet-unifi",
-  "project_page": "https://github.com/jmkeyes/puppet-unifi",
-  "issues_url": "https://github.com/jmkeyes/puppet-unifi/issues",
-  "requirements": [
+  "source": "https://github.com/freepenguins/puppet-unifi",
+  "project_page": "https://github.com/freepenguins/puppet-unifi",
+  "issues_url": "https://github.com/freepenguins/puppet-unifi/issues",
+  "dependencies": [
     {
-      "name": "puppet",
-      "version_requirement": ">= 3.7.0"
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 9.0.0 < 11.0.0"
+    },
+    {
+      "name": "puppetlabs/apt",
+      "version_requirement": ">= 9.2.0 < 12.0.0"
+    },
+    {
+      "name": "puppetlabs/java_ks",
+      "version_requirement": ">= 5.0.0 < 7.0.0"
     }
   ],
   "operatingsystem_support": [
     {
       "operatingsystem": "Debian",
       "operatingsystemrelease": [
-        "7.0",
-        "8.0",
-        "9.0"
+        "11",
+        "12"
+      ]
+    },
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "22.04",
+        "24.04"
       ]
     }
   ],
-  "dependencies": [
+  "requirements": [
     {
-      "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.6.0 < 5.0.0"
-    },
-    {
-      "name": "puppetlabs/java_ks",
-      "version_requirement": ">= 1.4.1 <= 2.0.0"
-    },
-    {
-      "name": "puppetlabs/apt",
-      "version_requirement": ">= 2.3.0 <= 5.0.0"
+      "name": "puppet",
+      "version_requirement": ">= 7.0.0 < 9.0.0"
     }
-  ]
+  ],
+  "tags": [
+    "unifi",
+    "ubiquiti",
+    "unifi-network",
+    "unifi-controller",
+    "mongodb"
+  ],
+  "pdk-version": "3.4.0",
+  "template-url": "https://github.com/puppetlabs/pdk-templates#3.8.0",
+  "template-ref": "tags/3.8.0-0-gf1124a6"
 }
