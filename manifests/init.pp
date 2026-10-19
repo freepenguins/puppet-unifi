@@ -112,7 +112,9 @@
 # @param defaults
 #   Variables for `/etc/default/unifi`, such as
 #   `{ 'JVM_MAX_HEAP_SIZE' => 2048, 'UNIFI_JVM_EXTRA_OPTS' => '-Dlog4j2.formatMsgNoLookups=true' }`.
-#   `JVM_INIT_HEAP_SIZE` and `JVM_MAX_HEAP_SIZE` are in MB.
+#   `JVM_INIT_HEAP_SIZE` and `JVM_MAX_HEAP_SIZE` are in MB. The package's unit
+#   splits the JVM options at whitespace, so no single option can contain a
+#   space.
 # @param manage_logrotate
 #   Whether to manage `/etc/logrotate.d/unifi`, which rotates the MongoDB log
 #   UniFi keeps in its logs directory. UniFi rotates its own `server.log`.

@@ -152,7 +152,10 @@ unifi::setting { 'unifi.http.port':
 }
 ```
 
-Each change restarts UniFi, which reads the file when it starts.
+Each change restarts UniFi, which reads the file when it starts. The
+`settings` hash is declared in `unifi::config`, and the restart relies on
+that class's `~>` to `unifi::service`; a `unifi::setting` declared elsewhere
+notifies the service itself.
 
 ### Java heap and other environment variables
 
@@ -169,7 +172,9 @@ unifi::defaults:
 ```
 
 Values are double-quoted with `\`, `"`, `$` and `` ` `` escaped, so systemd
-and the shell both read them literally. `unifi.xms` and `unifi.xmx` in
+and the shell both read them literally. The package's unit then passes
+`$UNIFI_JVM_OPTS` to Java split at whitespace, so a single JVM option can't
+contain a space: `-Dfoo=a b` becomes two arguments, whatever the quoting. `unifi.xms` and `unifi.xmx` in
 `system.properties`, if set, take precedence over the heap variables.
 
 ### Log rotation
