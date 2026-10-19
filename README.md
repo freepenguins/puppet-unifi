@@ -127,7 +127,7 @@ class { 'unifi':
 ```
 
 The certificate (with its chain) and key are PEM files on the host, for
-example from Let's Encrypt. They're imported into the `unifi` entry of
+example from Let's Encrypt. `keystore_password` can be `Sensitive`. They're imported into the `unifi` entry of
 UniFi's keystore, and UniFi restarts when they change.
 
 ### system.properties
@@ -152,7 +152,9 @@ Each change restarts UniFi, which reads the file when it starts.
 
 ## Reference
 
-See [REFERENCE.md](REFERENCE.md).
+See [REFERENCE.md](REFERENCE.md), and `examples/` for a manifest per use
+case: the default install, another version, the APT repository, a TLS
+certificate, settings, and bringing your own MongoDB and Java.
 
 ## Limitations
 

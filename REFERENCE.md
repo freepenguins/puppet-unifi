@@ -308,10 +308,10 @@ Default value: `undef`
 
 ##### <a name="-unifi--keystore_password"></a>`keystore_password`
 
-Data type: `String[1]`
+Data type: `Variant[String[1], Sensitive[String[1]]]`
 
-UniFi's keystore password. UniFi only opens its keystore with the default,
-`aircontrolenterprise`.
+UniFi's keystore password, which can be `Sensitive`. UniFi only opens its
+keystore with the default, `aircontrolenterprise`.
 
 Default value: `'aircontrolenterprise'`
 

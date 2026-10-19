@@ -21,7 +21,9 @@ First release as `freepenguins-unifi`, forked from
   OpenJDK, or Temurin from Adoptium on Debian), installed before UniFi.
 - `settings` parameter for `unifi::setting` resources, which now restart
   UniFi when they change.
-- Unit tests for every supported OS.
+- `keystore_password` accepts `Sensitive`.
+- Examples for each use case in `examples/`, and unit tests for every
+  supported OS that also compile each example.
 
 ### Changed
 - Converted to PDK 3.4.0 with pdk-templates 3.8.0.

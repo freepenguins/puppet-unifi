@@ -99,8 +99,8 @@
 # @param ssl_private_key
 #   Path of the certificate's PEM private key.
 # @param keystore_password
-#   UniFi's keystore password. UniFi only opens its keystore with the default,
-#   `aircontrolenterprise`.
+#   UniFi's keystore password, which can be `Sensitive`. UniFi only opens its
+#   keystore with the default, `aircontrolenterprise`.
 # @param data_path
 #   UniFi's data directory, where `system.properties` and the keystore live.
 # @param settings
@@ -108,34 +108,34 @@
 #   `{ 'unifi.https.port' => { 'value' => '8443' } }`.
 class unifi (
   # Defaults for these are in the module's Hiera data, per OS.
-  Boolean                                $manage_java_repository,
-  String[1]                              $mongodb_repo_location,
-  String[1]                              $mongodb_repo_component,
-  String[1]                              $mongodb_version,
-  Optional[String[1]]                    $java_package,
-  String[1]                              $package_ensure,
-  Hash[String[1], Pattern[/\A\h{64}\z/]] $package_checksums,
-  Enum['download', 'repository']         $install_from              = 'download',
-  Optional[Stdlib::HTTPUrl]              $package_url               = undef,
-  Stdlib::Absolutepath                   $download_dir              = '/var/cache/unifi',
-  Boolean                                $manage_repository         = ($install_from == 'repository'),
-  Stdlib::HTTPUrl                        $repo_location             = 'https://dl.ui.com/unifi/debian',
-  String[1]                              $repo_release              = 'stable',
-  String[1]                              $repo_key_name             = 'unifi-repo.gpg',
-  Stdlib::HTTPUrl                        $repo_key_source           = 'https://dl.ui.com/unifi/unifi-repo.gpg',
-  Boolean                                $manage_mongodb_repository = true,
-  Stdlib::HTTPUrl                        $java_repo_location        = 'https://packages.adoptium.net/artifactory/deb',
-  Boolean                                $manage_package            = true,
-  String[1]                              $package_name              = 'unifi',
-  Boolean                                $manage_service            = true,
-  String[1]                              $service_name              = 'unifi',
-  Stdlib::Ensure::Service                $service_ensure            = 'running',
-  Boolean                                $service_enable            = true,
-  Optional[Stdlib::Absolutepath]         $ssl_certificate           = undef,
-  Optional[Stdlib::Absolutepath]         $ssl_private_key           = undef,
-  String[1]                              $keystore_password         = 'aircontrolenterprise',
-  Stdlib::Absolutepath                   $data_path                 = '/var/lib/unifi',
-  Hash[String[1], Hash]                  $settings                  = {},
+  Boolean                                  $manage_java_repository,
+  String[1]                                $mongodb_repo_location,
+  String[1]                                $mongodb_repo_component,
+  String[1]                                $mongodb_version,
+  Optional[String[1]]                      $java_package,
+  String[1]                                $package_ensure,
+  Hash[String[1], Pattern[/\A\h{64}\z/]]   $package_checksums,
+  Enum['download', 'repository']           $install_from              = 'download',
+  Optional[Stdlib::HTTPUrl]                $package_url               = undef,
+  Stdlib::Absolutepath                     $download_dir              = '/var/cache/unifi',
+  Boolean                                  $manage_repository         = ($install_from == 'repository'),
+  Stdlib::HTTPUrl                          $repo_location             = 'https://dl.ui.com/unifi/debian',
+  String[1]                                $repo_release              = 'stable',
+  String[1]                                $repo_key_name             = 'unifi-repo.gpg',
+  Stdlib::HTTPUrl                          $repo_key_source           = 'https://dl.ui.com/unifi/unifi-repo.gpg',
+  Boolean                                  $manage_mongodb_repository = true,
+  Stdlib::HTTPUrl                          $java_repo_location        = 'https://packages.adoptium.net/artifactory/deb',
+  Boolean                                  $manage_package            = true,
+  String[1]                                $package_name              = 'unifi',
+  Boolean                                  $manage_service            = true,
+  String[1]                                $service_name              = 'unifi',
+  Stdlib::Ensure::Service                  $service_ensure            = 'running',
+  Boolean                                  $service_enable            = true,
+  Optional[Stdlib::Absolutepath]           $ssl_certificate           = undef,
+  Optional[Stdlib::Absolutepath]           $ssl_private_key           = undef,
+  Variant[String[1], Sensitive[String[1]]] $keystore_password         = 'aircontrolenterprise',
+  Stdlib::Absolutepath                     $data_path                 = '/var/lib/unifi',
+  Hash[String[1], Hash]                    $settings                  = {},
 ) {
   unless $facts['os']['family'] == 'Debian' {
     fail("unifi: Ubiquiti only publishes UniFi for Debian and Ubuntu, not ${facts['os']['name']}.")

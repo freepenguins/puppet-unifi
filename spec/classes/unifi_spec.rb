@@ -71,6 +71,15 @@ describe 'unifi' do
         end
       end
 
+      context 'with a Sensitive keystore password' do
+        let(:params) do
+          { ssl_certificate: '/etc/ssl/certs/unifi.pem', ssl_private_key: '/etc/ssl/private/unifi.key', keystore_password: sensitive('aircontrolenterprise') }
+        end
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_java_ks('unifi:/var/lib/unifi/keystore').with_password(sensitive('aircontrolenterprise')) }
+      end
+
       context 'with only half a certificate' do
         let(:params) { { ssl_certificate: '/etc/ssl/certs/unifi.pem' } }
 
