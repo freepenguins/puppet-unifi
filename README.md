@@ -45,6 +45,10 @@ what changed.
   `/var/lib/unifi/keystore`.
 * With `settings` or `unifi::setting`: properties in
   `/var/lib/unifi/system.properties`.
+* `/etc/logrotate.d/unifi` (`manage_logrotate`), which rotates the MongoDB
+  log UniFi runs; by default the same rules as the package's file.
+* With `manage_defaults`: `/etc/default/unifi`, the environment for the
+  service and the package's scripts.
 
 ### Setup requirements
 
@@ -150,11 +154,43 @@ unifi::setting { 'unifi.http.port':
 
 Each change restarts UniFi, which reads the file when it starts.
 
+### Java heap and other environment variables
+
+UniFi's service and the package's scripts read `/etc/default/unifi`. With
+`manage_defaults` the module writes it from `defaults` and restarts UniFi
+when it changes. Heap sizes are in MB:
+
+```yaml
+unifi::manage_defaults: true
+unifi::defaults:
+  JVM_INIT_HEAP_SIZE: 1024
+  JVM_MAX_HEAP_SIZE: 4096
+  UNIFI_JVM_EXTRA_OPTS: '-Dlog4j2.formatMsgNoLookups=true'
+```
+
+Values are double-quoted with `\`, `"`, `$` and `` ` `` escaped, so systemd
+and the shell both read them literally. `unifi.xms` and `unifi.xmx` in
+`system.properties`, if set, take precedence over the heap variables.
+
+### Log rotation
+
+The module manages `/etc/logrotate.d/unifi`, which rotates UniFi's MongoDB
+log (`/usr/lib/unifi/logs/mongod.log`). The defaults match the package's own
+file: 5 rotations of 50M, compressed. UniFi rotates its own `server.log`.
+
+```yaml
+unifi::logrotate_rotate: 14
+unifi::logrotate_size: '200M'
+```
+
+Set `unifi::manage_logrotate: false` to leave the package's file alone.
+
 ## Reference
 
 See [REFERENCE.md](REFERENCE.md), and `examples/` for a manifest per use
 case: the default install, another version, the APT repository, a TLS
-certificate, settings, and bringing your own MongoDB and Java.
+certificate, settings, Java heap, log rotation, and bringing your own MongoDB
+and Java.
 
 ## Limitations
 

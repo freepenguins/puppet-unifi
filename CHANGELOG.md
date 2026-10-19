@@ -22,6 +22,12 @@ First release as `freepenguins-unifi`, forked from
 - `settings` parameter for `unifi::setting` resources, which now restart
   UniFi when they change.
 - `keystore_password` accepts `Sensitive`.
+- `/etc/logrotate.d/unifi` management (`manage_logrotate`,
+  `logrotate_rotate`, `logrotate_size`, `logrotate_compress`), defaulting to
+  the package's rules.
+- `/etc/default/unifi` management (`manage_defaults`, `defaults`) for the
+  Java heap and other environment variables.
+- An `os/<name>/<codename>.yaml` level in the module's Hiera hierarchy.
 - Examples for each use case in `examples/`, and unit tests for every
   supported OS that also compile each example.
 
@@ -30,7 +36,8 @@ First release as `freepenguins-unifi`, forked from
 - Ubiquiti's repository is `https://dl.ui.com/unifi/debian` with its key as
   a keyring (`repo_key_name`, `repo_key_source`).
 - Typed parameters, with per-OS defaults in module Hiera data.
-- `unifi::setting` is titled by property name, and quotes its value.
+- `unifi::setting` is titled by property name, and quotes its value. The
+  `settings` resources are declared in `unifi::config`.
 - Dependencies: puppetlabs/stdlib 9-10, puppetlabs/apt 9.2-11,
   puppetlabs/java_ks 5-6.
 

@@ -1,0 +1,7 @@
+<%- | Hash $variables | -%>
+# This file is managed by Puppet; local changes will be overwritten.
+# Read by the unifi service (EnvironmentFile) and sourced by the package's
+# scripts, so values are double-quoted with \, ", $ and ` escaped.
+<% $variables.keys.sort.each |$name| { -%>
+<%= $name %>="<%= String($variables[$name]).regsubst('([\\\\"$`])', '\\\\\1', 'G') %>"
+<% } -%>

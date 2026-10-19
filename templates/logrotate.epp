@@ -1,0 +1,19 @@
+<%- |
+  Integer $rotate,
+  String $size,
+  Boolean $compress,
+| -%>
+# This file is managed by Puppet; local changes will be overwritten.
+/usr/lib/unifi/logs/mongod.log {
+        rotate <%= $rotate %>
+        size <%= $size %>
+<% if $compress { -%>
+        compress
+<% } -%>
+        missingok
+        sharedscripts
+        su unifi unifi
+        postrotate
+                test ! -r /usr/lib/unifi/run/mongod.pid || kill -USR1 $(cat /usr/lib/unifi/run/mongod.pid)
+        endscript
+}

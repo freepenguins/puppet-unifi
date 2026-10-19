@@ -80,6 +80,64 @@ describe 'unifi' do
         it { is_expected.to contain_java_ks('unifi:/var/lib/unifi/keystore').with_password(sensitive('aircontrolenterprise')) }
       end
 
+      it 'rotates the MongoDB log as the package does' do
+        # The package's /etc/logrotate.d/unifi (10.6.106), after our header line.
+        package_file = [
+          "/usr/lib/unifi/logs/mongod.log {\n",
+          "        rotate 5\n",
+          "        size 50M\n",
+          "        compress\n",
+          "        missingok\n",
+          "        sharedscripts\n",
+          "        su unifi unifi\n",
+          "        postrotate\n",
+          "                test ! -r /usr/lib/unifi/run/mongod.pid || kill -USR1 $(cat /usr/lib/unifi/run/mongod.pid)\n",
+          "        endscript\n",
+          "}\n",
+        ]
+        is_expected.to contain_file('/etc/logrotate.d/unifi').with(owner: 'root', group: 'root', mode: '0644')
+        expect(catalogue.resource('File', '/etc/logrotate.d/unifi')[:content].lines.drop(1)).to eq(package_file)
+      end
+
+      it { is_expected.not_to contain_file('/etc/default/unifi') }
+
+      context 'with other log rotation settings' do
+        let(:params) { { logrotate_rotate: 10, logrotate_size: '100M', logrotate_compress: false } }
+
+        it { is_expected.to contain_file('/etc/logrotate.d/unifi').with_content(%r{^\s+rotate 10$}).with_content(%r{^\s+size 100M$}).without_content(%r{compress}) }
+      end
+
+      context 'without managing log rotation' do
+        let(:params) { { manage_logrotate: false } }
+
+        it { is_expected.not_to contain_file('/etc/logrotate.d/unifi') }
+      end
+
+      context 'with /etc/default/unifi' do
+        let(:params) do
+          {
+            manage_defaults: true,
+            defaults: { 'JVM_MAX_HEAP_SIZE' => 2048, 'UNIFI_JVM_EXTRA_OPTS' => '-Dfoo="a b" -Dhome=$HOME', 'JVM_INIT_HEAP_SIZE' => 512 },
+          }
+        end
+
+        it 'writes the variables, sorted and quoted' do
+          is_expected.to contain_file('/etc/default/unifi').with(owner: 'root', group: 'root', mode: '0644')
+          content = catalogue.resource('File', '/etc/default/unifi')[:content]
+          expect(content.lines.grep_v(%r{^#})).to eq([
+                                                       %(JVM_INIT_HEAP_SIZE="512"\n),
+                                                       %(JVM_MAX_HEAP_SIZE="2048"\n),
+                                                       %(UNIFI_JVM_EXTRA_OPTS="-Dfoo=\\"a b\\" -Dhome=\\$HOME"\n),
+                                                     ])
+        end
+      end
+
+      context 'with an invalid variable name' do
+        let(:params) { { manage_defaults: true, defaults: { 'BAD-NAME' => 'x' } } }
+
+        it { is_expected.to compile.and_raise_error(%r{defaults}) }
+      end
+
       context 'with only half a certificate' do
         let(:params) { { ssl_certificate: '/etc/ssl/certs/unifi.pem' } }
 
@@ -136,6 +194,7 @@ describe 'unifi' do
         let(:params) { { settings: { 'unifi.https.port' => { 'value' => 8443 } } } }
 
         it { is_expected.to contain_unifi__setting('unifi.https.port').with_value(8443) }
+        it { is_expected.to contain_class('unifi::config').that_comes_before('Class[unifi::service]') }
         it { is_expected.to contain_augeas('unifi-setting-unifi.https.port').with_changes("set unifi.https.port '8443'") }
       end
     end

@@ -12,7 +12,7 @@
 
 #### Private Classes
 
-* `unifi::config`: Imports a TLS certificate into UniFi's keystore.
+* `unifi::config`: Configures UniFi: its keystore, settings, environment and log rotation.
 * `unifi::install`: Installs Java, then UniFi (which pulls in MongoDB).
 * `unifi::repo`: Adds the APT repositories UniFi and its dependencies come from.
 * `unifi::service`: Runs the UniFi service.
@@ -20,6 +20,10 @@
 ### Defined types
 
 * [`unifi::setting`](#unifi--setting): Sets or removes a property in UniFi's system.properties.
+
+### Data types
+
+* [`Unifi::Environment`](#Unifi--Environment): Variables for /etc/default/unifi, keyed by shell variable name.
 
 ## Classes
 
@@ -107,6 +111,12 @@ The following parameters are available in the `unifi` class:
 * [`keystore_password`](#-unifi--keystore_password)
 * [`data_path`](#-unifi--data_path)
 * [`settings`](#-unifi--settings)
+* [`manage_defaults`](#-unifi--manage_defaults)
+* [`defaults`](#-unifi--defaults)
+* [`manage_logrotate`](#-unifi--manage_logrotate)
+* [`logrotate_rotate`](#-unifi--logrotate_rotate)
+* [`logrotate_size`](#-unifi--logrotate_size)
+* [`logrotate_compress`](#-unifi--logrotate_compress)
 
 ##### <a name="-unifi--install_from"></a>`install_from`
 
@@ -332,6 +342,58 @@ Data type: `Hash[String[1], Hash]`
 
 Default value: `{}`
 
+##### <a name="-unifi--manage_defaults"></a>`manage_defaults`
+
+Data type: `Boolean`
+
+Whether to write `/etc/default/unifi`, which the service and the
+package's scripts read for environment variables.
+
+Default value: `false`
+
+##### <a name="-unifi--defaults"></a>`defaults`
+
+Data type: `Unifi::Environment`
+
+Variables for `/etc/default/unifi`, such as
+`{ 'JVM_MAX_HEAP_SIZE' => 2048, 'UNIFI_JVM_EXTRA_OPTS' => '-Dlog4j2.formatMsgNoLookups=true' }`.
+`JVM_INIT_HEAP_SIZE` and `JVM_MAX_HEAP_SIZE` are in MB.
+
+Default value: `{}`
+
+##### <a name="-unifi--manage_logrotate"></a>`manage_logrotate`
+
+Data type: `Boolean`
+
+Whether to manage `/etc/logrotate.d/unifi`, which rotates the MongoDB log
+UniFi keeps in its logs directory. UniFi rotates its own `server.log`.
+
+Default value: `true`
+
+##### <a name="-unifi--logrotate_rotate"></a>`logrotate_rotate`
+
+Data type: `Integer[0]`
+
+How many rotated logs to keep.
+
+Default value: `5`
+
+##### <a name="-unifi--logrotate_size"></a>`logrotate_size`
+
+Data type: `Pattern[/\A\d+[kMG]?\z/]`
+
+Rotate when the log is larger than this, such as `50M`.
+
+Default value: `'50M'`
+
+##### <a name="-unifi--logrotate_compress"></a>`logrotate_compress`
+
+Data type: `Boolean`
+
+Whether to compress rotated logs.
+
+Default value: `true`
+
 ## Defined types
 
 ### <a name="unifi--setting"></a>`unifi::setting`
@@ -388,4 +450,12 @@ Data type: `String[1]`
 The property name. Defaults to the resource title.
 
 Default value: `$title`
+
+## Data types
+
+### <a name="Unifi--Environment"></a>`Unifi::Environment`
+
+Variables for /etc/default/unifi, keyed by shell variable name.
+
+Alias of `Hash[Pattern[/\A[A-Za-z_][A-Za-z0-9_]*\z/], Variant[String, Integer, Boolean]]`
 

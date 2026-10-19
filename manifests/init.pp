@@ -106,6 +106,22 @@
 # @param settings
 #   `unifi::setting` resources to declare, keyed by property name, such as
 #   `{ 'unifi.https.port' => { 'value' => '8443' } }`.
+# @param manage_defaults
+#   Whether to write `/etc/default/unifi`, which the service and the
+#   package's scripts read for environment variables.
+# @param defaults
+#   Variables for `/etc/default/unifi`, such as
+#   `{ 'JVM_MAX_HEAP_SIZE' => 2048, 'UNIFI_JVM_EXTRA_OPTS' => '-Dlog4j2.formatMsgNoLookups=true' }`.
+#   `JVM_INIT_HEAP_SIZE` and `JVM_MAX_HEAP_SIZE` are in MB.
+# @param manage_logrotate
+#   Whether to manage `/etc/logrotate.d/unifi`, which rotates the MongoDB log
+#   UniFi keeps in its logs directory. UniFi rotates its own `server.log`.
+# @param logrotate_rotate
+#   How many rotated logs to keep.
+# @param logrotate_size
+#   Rotate when the log is larger than this, such as `50M`.
+# @param logrotate_compress
+#   Whether to compress rotated logs.
 class unifi (
   # Defaults for these are in the module's Hiera data, per OS.
   Boolean                                  $manage_java_repository,
@@ -136,6 +152,12 @@ class unifi (
   Variant[String[1], Sensitive[String[1]]] $keystore_password         = 'aircontrolenterprise',
   Stdlib::Absolutepath                     $data_path                 = '/var/lib/unifi',
   Hash[String[1], Hash]                    $settings                  = {},
+  Boolean                                  $manage_defaults           = false,
+  Unifi::Environment                       $defaults                  = {},
+  Boolean                                  $manage_logrotate          = true,
+  Integer[0]                               $logrotate_rotate          = 5,
+  Pattern[/\A\d+[kMG]?\z/]                 $logrotate_size            = '50M',
+  Boolean                                  $logrotate_compress        = true,
 ) {
   unless $facts['os']['family'] == 'Debian' {
     fail("unifi: Ubiquiti only publishes UniFi for Debian and Ubuntu, not ${facts['os']['name']}.")
@@ -153,10 +175,4 @@ class unifi (
   -> Class['unifi::install']
   -> Class['unifi::config']
   ~> Class['unifi::service']
-
-  $settings.each |String[1] $name, Hash $params| {
-    unifi::setting { $name:
-      * => $params,
-    }
-  }
 }
