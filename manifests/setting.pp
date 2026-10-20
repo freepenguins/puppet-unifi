@@ -18,11 +18,11 @@
 # @param value
 #   The property's value. Required unless `ensure` is `absent`.
 # @param property
-#   The property name. Defaults to the resource title.
+#   The property name (`Unifi::Property`). Defaults to the resource title.
 define unifi::setting (
   Enum['present', 'absent']                    $ensure   = 'present',
   Optional[Variant[String, Integer, Boolean]] $value    = undef,
-  String[1]                                    $property = $title,
+  Unifi::Property                              $property = $title,
 ) {
   if $ensure == 'present' and $value =~ Undef {
     fail("unifi::setting[${title}]: set a value, or ensure => absent.")

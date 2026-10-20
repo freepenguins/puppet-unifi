@@ -190,6 +190,12 @@ describe 'unifi' do
         it { is_expected.not_to contain_file('/var/cache/unifi') }
       end
 
+      context 'with a settings key that isn\'t a property name' do
+        let(:params) { { settings: { 'unifi http.port' => { 'value' => 8081 } } } }
+
+        it { is_expected.to compile.and_raise_error(%r{settings}) }
+      end
+
       context 'with settings' do
         let(:params) { { settings: { 'unifi.https.port' => { 'value' => 8443 } } } }
 

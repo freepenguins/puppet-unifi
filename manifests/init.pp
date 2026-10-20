@@ -104,7 +104,8 @@
 # @param data_path
 #   UniFi's data directory, where `system.properties` and the keystore live.
 # @param settings
-#   `unifi::setting` resources to declare, keyed by property name, such as
+#   `unifi::setting` resources to declare, keyed by property name
+#   (`Unifi::Property`), such as
 #   `{ 'unifi.https.port' => { 'value' => '8443' } }`.
 # @param manage_defaults
 #   Whether to write `/etc/default/unifi`, which the service and the
@@ -153,7 +154,7 @@ class unifi (
   Optional[Stdlib::Absolutepath]           $ssl_private_key           = undef,
   Variant[String[1], Sensitive[String[1]]] $keystore_password         = 'aircontrolenterprise',
   Stdlib::Absolutepath                     $data_path                 = '/var/lib/unifi',
-  Hash[String[1], Hash]                    $settings                  = {},
+  Hash[Unifi::Property, Hash]              $settings                  = {},
   Boolean                                  $manage_defaults           = false,
   Unifi::Environment                       $defaults                  = {},
   Boolean                                  $manage_logrotate          = true,

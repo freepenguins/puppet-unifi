@@ -33,6 +33,22 @@ describe 'unifi::setting' do
     it { is_expected.to contain_augeas('unifi-setting-unifi.http.port').with_changes('rm unifi.http.port') }
   end
 
+  context 'with the property set apart from the title' do
+    let(:title) { 'inform port' }
+    let(:params) { { property: 'unifi.http.port', value: 8081 } }
+
+    it { is_expected.to contain_augeas('unifi-setting-unifi.http.port').with_changes("set unifi.http.port '8081'") }
+  end
+
+  ['unifi http.port', 'unifi/http.port', "unifi.http.port'x"].each do |bad|
+    context "with the property name #{bad.inspect}" do
+      let(:title) { bad }
+      let(:params) { { value: 1 } }
+
+      it { is_expected.to compile.and_raise_error(%r{property}) }
+    end
+  end
+
   context 'without a value' do
     it { is_expected.to compile.and_raise_error(%r{set a value, or ensure => absent}) }
   end

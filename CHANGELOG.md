@@ -38,6 +38,9 @@ First release as `freepenguins-unifi`, forked from
 - Typed parameters, with per-OS defaults in module Hiera data.
 - `unifi::setting` is titled by property name, and quotes its value. The
   `settings` resources are declared in `unifi::config`.
+- Property names (the `settings` keys and `unifi::setting`'s `property`)
+  are checked by the new `Unifi::Property` type, so a name with a space,
+  slash or quote fails when the catalog compiles instead of in Augeas.
 - Dependencies: puppetlabs/stdlib 9-10, puppetlabs/apt 9.2-11,
   puppetlabs/java_ks 5-6.
 

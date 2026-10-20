@@ -24,6 +24,7 @@
 ### Data types
 
 * [`Unifi::Environment`](#Unifi--Environment): Variables for /etc/default/unifi, keyed by shell variable name.
+* [`Unifi::Property`](#Unifi--Property): A key in UniFi's system.properties, such as `unifi.https.port`.
 
 ## Classes
 
@@ -335,9 +336,10 @@ Default value: `'/var/lib/unifi'`
 
 ##### <a name="-unifi--settings"></a>`settings`
 
-Data type: `Hash[String[1], Hash]`
+Data type: `Hash[Unifi::Property, Hash]`
 
-`unifi::setting` resources to declare, keyed by property name, such as
+`unifi::setting` resources to declare, keyed by property name
+(`Unifi::Property`), such as
 `{ 'unifi.https.port' => { 'value' => '8443' } }`.
 
 Default value: `{}`
@@ -447,9 +449,9 @@ Default value: `undef`
 
 ##### <a name="-unifi--setting--property"></a>`property`
 
-Data type: `String[1]`
+Data type: `Unifi::Property`
 
-The property name. Defaults to the resource title.
+The property name (`Unifi::Property`). Defaults to the resource title.
 
 Default value: `$title`
 
@@ -460,4 +462,11 @@ Default value: `$title`
 Variables for /etc/default/unifi, keyed by shell variable name.
 
 Alias of `Hash[Pattern[/\A[A-Za-z_][A-Za-z0-9_]*\z/], Variant[String, Integer, Boolean]]`
+
+### <a name="Unifi--Property"></a>`Unifi::Property`
+
+Letters, digits, dots, dashes and underscores, starting with a letter or
+digit. A space, slash or quote would break the Augeas change that sets it.
+
+Alias of `Pattern[/\A[A-Za-z0-9][A-Za-z0-9._-]*\z/]`
 

@@ -18,7 +18,7 @@ class unifi::config {
   }
 
   # Properties in system.properties.
-  $unifi::settings.each |String[1] $name, Hash $params| {
+  $unifi::settings.each |Unifi::Property $name, Hash $params| {
     unifi::setting { $name:
       * => $params,
     }
